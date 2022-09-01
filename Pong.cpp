@@ -29,6 +29,9 @@ namespace Pong
 			public:
 				float x, y, radius;
 				Vector velocity;
+				/*
+					A boolean representing if the ball hit a paddle.
+				*/
 				bool hitSomething = false;
 
 				Ball(int startX, int startY)
@@ -55,6 +58,9 @@ namespace Pong
 						y = radius;
 					}
 
+					// This should remove any possible problems with the
+					// ball being inside of the paddle. In other words,
+					// this should push the ball outside of the paddle.
 					if (hitSomething)
 					{
 						x += radius * (velocity.x / abs(velocity.x)); // offsetX
@@ -116,6 +122,8 @@ namespace Pong
 
 				ball->OnUserUpdate(this, fElapsedTime);
 
+				// Checks for player movement, player collisions with the ball, 
+				// and if the ball passed by any of the paddles.
 				for (Player* player : players)
 				{
 					if (BallIntersectsWithPlayer(*player, *ball))
@@ -123,11 +131,13 @@ namespace Pong
 						ball->velocity.x *= -1;
 						ball->hitSomething = true;
 
+						// If the ball hits the top or bottom of the paddle
 						if (ball->y < player->y || ball->y > player->y + player->height)
 						{
 							ball->velocity.y *= -1;
 						}
 					}
+					// The Right side player won this round.
 					else if (ball->x < 0)
 					{
 						ball->x = (ScreenWidth() >> 1);
@@ -135,6 +145,7 @@ namespace Pong
 						ball->velocity.x *= -1;
 						players[1]->score++;
 					}
+					// The Left side player won this round.
 					else if (ball->x > ScreenWidth())
 					{
 						ball->x = (ScreenWidth() >> 1);
@@ -144,6 +155,7 @@ namespace Pong
 					}
 					player->OnUserUpdate(this, fElapsedTime);
 				}
+				// Draws the scores of both players in their respective positions.
 				DrawString((ScreenWidth() >> 1) - 100, 2, std::to_string(players[0]->score), olc::WHITE);
 				DrawString((ScreenWidth() >> 1) + 100, 2, std::to_string(players[1]->score), olc::WHITE);
 				return true;
